@@ -83,11 +83,11 @@ func main() {
 
 	// initialize storage
 	mainStorer = &storerMemory.StorerMemory{}
-	info.Println("Storage engine loaded:", "StorerTestDummy")
+	info.Println("Storage engine loaded:", "StorerMemory")
 
 	// initialize object storage
 	objStorer = &objStorerMemory.ObjStorerMemory{}
-	info.Println("Object storage engine loaded:", conf.ObjStorage)
+	info.Println("Object storage engine loaded:", "ObjStorerMemory")
 
 	// check if the user only wants to
 	// initialize the databse.

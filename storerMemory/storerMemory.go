@@ -2,6 +2,7 @@ package storerMemory
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 
 	"github.com/ms-xy/Holmes-Storage-Testdummy/storerGeneric"
@@ -37,8 +38,8 @@ func (s StorerMemory) ParseUUID(id string) (string, int, error) {
 		return "", -1, errors.New("Invalid ID supplied")
 	}
 	sha256 := parts[0]
-	index := parts[1]
-	return sha256, index, nil
+	index, err := strconv.Atoi(parts[1])
+	return sha256, index, err
 }
 
 func (s StorerMemory) StoreObject(object *storerGeneric.Object) error {
@@ -125,6 +126,9 @@ func (s StorerMemory) StoreResult(result *storerGeneric.Result) error {
 
 func (s StorerMemory) GetResult(id string) (*storerGeneric.Result, error) {
 	sha256, index, err := s.ParseUUID(id)
+	if err != nil {
+		return nil, errors.New("Invalid ID supplied")
+	}
 
 	if results, ok := s.results[sha256]; ok && len(results) >= index-1 {
 		return results[index], nil
