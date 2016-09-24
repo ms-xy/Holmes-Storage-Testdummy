@@ -17,22 +17,23 @@ type StorerMemory struct {
 	configs     map[string]*storerGeneric.Config
 }
 
-func (s StorerMemory) CreateDB(c []*storerGeneric.DBConnector) error {
+func (s *StorerMemory) CreateDB(c []*storerGeneric.DBConnector) error {
 	return nil
 }
 
-func (s StorerMemory) Initialize(c []*storerGeneric.DBConnector) (storerGeneric.Storer, error) {
+func (s *StorerMemory) Initialize(c []*storerGeneric.DBConnector) (storerGeneric.Storer, error) {
 	s.submissions = make(map[string][]*storerGeneric.Submission)
 	s.objects = make(map[string]*storerGeneric.Object)
 	s.results = make(map[string][]*storerGeneric.Result)
+	s.configs = make(map[string]*storerGeneric.Config)
 	return s, nil
 }
 
-func (s StorerMemory) Setup() error {
+func (s *StorerMemory) Setup() error {
 	return nil
 }
 
-func (s StorerMemory) ParseUUID(id string) (string, int, error) {
+func (s *StorerMemory) ParseUUID(id string) (string, int, error) {
 	parts := strings.Split(id, "---")
 	if len(parts) != 2 {
 		return "", -1, errors.New("Invalid ID supplied")
@@ -42,7 +43,7 @@ func (s StorerMemory) ParseUUID(id string) (string, int, error) {
 	return sha256, index, err
 }
 
-func (s StorerMemory) StoreObject(object *storerGeneric.Object) error {
+func (s *StorerMemory) StoreObject(object *storerGeneric.Object) error {
 	submissions, _ := s.GetSubmissionsByObject(object.SHA256)
 
 	l := len(submissions)
@@ -68,7 +69,7 @@ func (s StorerMemory) StoreObject(object *storerGeneric.Object) error {
 	return nil
 }
 
-func (s StorerMemory) GetObject(id string) (*storerGeneric.Object, error) {
+func (s *StorerMemory) GetObject(id string) (*storerGeneric.Object, error) {
 	object := &storerGeneric.Object{}
 
 	sha256, _, err := s.ParseUUID(id)
@@ -83,7 +84,7 @@ func (s StorerMemory) GetObject(id string) (*storerGeneric.Object, error) {
 	return nil, errors.New("Object not found")
 }
 
-func (s StorerMemory) StoreSubmission(submission *storerGeneric.Submission) error {
+func (s *StorerMemory) StoreSubmission(submission *storerGeneric.Submission) error {
 	if submissions, ok := s.submissions[submission.SHA256]; ok {
 		submission.Id = submission.SHA256 + "---" + string(len(submissions))
 		s.submissions[submission.SHA256] = append(s.submissions[submission.SHA256], submission)
@@ -94,7 +95,7 @@ func (s StorerMemory) StoreSubmission(submission *storerGeneric.Submission) erro
 	return nil
 }
 
-func (s StorerMemory) GetSubmission(id string) (*storerGeneric.Submission, error) {
+func (s *StorerMemory) GetSubmission(id string) (*storerGeneric.Submission, error) {
 	sha256, index, err := s.ParseUUID(id)
 	if err != nil {
 		return nil, err
@@ -106,14 +107,14 @@ func (s StorerMemory) GetSubmission(id string) (*storerGeneric.Submission, error
 	return nil, errors.New("Submission not found")
 }
 
-func (s StorerMemory) GetSubmissionsByObject(sha256 string) ([]*storerGeneric.Submission, error) {
+func (s *StorerMemory) GetSubmissionsByObject(sha256 string) ([]*storerGeneric.Submission, error) {
 	if submissions, ok := s.submissions[sha256]; ok {
 		return submissions, nil
 	}
 	return []*storerGeneric.Submission{}, nil
 }
 
-func (s StorerMemory) StoreResult(result *storerGeneric.Result) error {
+func (s *StorerMemory) StoreResult(result *storerGeneric.Result) error {
 	if results, ok := s.results[result.SHA256]; ok {
 		result.Id = result.SHA256 + "---" + string(len(results))
 		s.results[result.SHA256] = append(s.results[result.SHA256], result)
@@ -124,7 +125,7 @@ func (s StorerMemory) StoreResult(result *storerGeneric.Result) error {
 	return nil
 }
 
-func (s StorerMemory) GetResult(id string) (*storerGeneric.Result, error) {
+func (s *StorerMemory) GetResult(id string) (*storerGeneric.Result, error) {
 	sha256, index, err := s.ParseUUID(id)
 	if err != nil {
 		return nil, errors.New("Invalid ID supplied")
@@ -136,12 +137,12 @@ func (s StorerMemory) GetResult(id string) (*storerGeneric.Result, error) {
 	return nil, errors.New("Result not found")
 }
 
-func (s StorerMemory) StoreConfig(config *storerGeneric.Config) error {
+func (s *StorerMemory) StoreConfig(config *storerGeneric.Config) error {
 	s.configs[config.Path] = config
 	return nil
 }
 
-func (s StorerMemory) GetConfig(path string) (*storerGeneric.Config, error) {
+func (s *StorerMemory) GetConfig(path string) (*storerGeneric.Config, error) {
 	if config, ok := s.configs[path]; ok {
 		return config, nil
 	}

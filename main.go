@@ -83,10 +83,12 @@ func main() {
 
 	// initialize storage
 	mainStorer = &storerMemory.StorerMemory{}
+	mainStorer.Initialize(nil)
 	info.Println("Storage engine loaded:", "StorerMemory")
 
 	// initialize object storage
 	objStorer = &objStorerMemory.ObjStorerMemory{}
+	objStorer.Initialize(nil)
 	info.Println("Object storage engine loaded:", "ObjStorerMemory")
 
 	// check if the user only wants to
